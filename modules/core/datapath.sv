@@ -1,10 +1,9 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-import pc_mux_pkg::*;
-
-
-module datapath (
+module datapath
+	import type_pkg::*;
+	import pc_mux_pkg::*;
+(
 	input logic clk,
 	input logic rst_n,
 
@@ -21,17 +20,15 @@ module datapath (
 	output data_t ir,
 	output addr_t next_pc,
 
-	input data_t icache_data,
-	input icache_valid,
+	input data_t icache_rdata,
+	input logic icache_ready,
+	output logic icache_valid,
 	output addr_t icache_addr,
-	output icache_req,
 
-	input dcache_wvalid,
+	input logic dcache_ready,
 	input data_t dcache_rdata,
-	input dcache_rvalid,
+	input logic dcache_valid,
 	output addr_t dcache_addr,
-	output dcache_wreq,
-	output dcache_rreq,
 	output data_t dcache_wdata,
 	output byte_en_t dcache_byte_enable
 );
@@ -95,8 +92,8 @@ module datapath (
 		.imm(DE_F_imm), .pc_sel(c_pc_sel), .taken(c_br_taken), // from decode_execute
 		.mtvec(mtvec), .mepc(mepc), // from csr_file
 		.ir_code(F_DE_ir_w), .next_pc(next_pc),
-		.icache_data(icache_data), .icache_valid(icache_valid),
-		.icache_addr(icache_addr), .icache_req(icache_req)
+		.rdata(icache_rdata), .ready(icache_ready),
+		.valid(icache_valid), .addr(icache_addr)
 	);
 
 
@@ -116,8 +113,8 @@ module datapath (
 	lsu lsu (
 		.clk(clk), .rst_n(rst_n),
 		.opcode(DE_MW_opcode_w), .func3(DE_MW_func3_w), .alu_out(DE_MW_rd_data_w), .rs2(rs2_data),
-		.dcache_addr(dcache_addr), .dcache_wreq(dcache_wreq), .dcache_rreq(dcache_rreq), .dcache_wdata(dcache_wdata), .dcache_byte_enable(dcache_byte_enable),
-		.dcache_wvalid(dcache_wvalid), .dcache_rdata(dcache_rdata), .dcache_rvalid(dcache_rvalid),
+		.valid(dcache_valid), .addr(dcache_addr), .wdata(dcache_wdata), .byte_enable(dcache_byte_enable),
+		.ready(dcache_ready), .dcache_rdata(dcache_rdata),
 		.rdata(dcache_out), .done(memory_done)
 	);
 

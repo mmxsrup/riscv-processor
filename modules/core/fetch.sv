@@ -1,10 +1,9 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-import pc_mux_pkg::*;
-
-
-module fetch (
+module fetch
+	import type_pkg::*;
+	import pc_mux_pkg::*;
+(
 	input logic clk,
 	input logic rst_n,
 
@@ -26,25 +25,21 @@ module fetch (
 	output addr_t next_pc,
 
 	// from icache
-	input data_t icache_data,
-	input logic icache_valid,
+	input data_t rdata,
+	input logic ready,
 	// to icache
-	output addr_t icache_addr,
-	output logic icache_req
+	output logic valid,
+	output addr_t addr
 );
 
 	parameter NOP = 32'b00000000_00000000_00000000_00010011;
 
-	typedef enum logic [1 : 0] {IDLE, RUN, WAIT} state_type;
-	state_type state;
-
 	// from pc_mux
 	wire [31 : 0] pc_mux_out;
 
-	assign ir_code = (icache_valid) ? icache_data : NOP;
-	assign icache_addr = pc;
-	assign next_pc = (icache_valid) ? pc_mux_out : pc;
-	assign icache_req = (state == RUN) ? 1'b1 : 1'b0;
+	assign ir_code = (valid && ready) ? rdata : NOP;
+	assign addr = pc;
+	assign next_pc = (valid && ready) ? pc_mux_out : pc;
 
 
 	pc_mux pc_mux (
@@ -56,23 +51,12 @@ module fetch (
 		.next_pc(pc_mux_out)
 	);
 
-
 	always_ff @(posedge clk) begin
-		if (~rst_n) begin
-			state <= IDLE;
+		if(~rst_n) begin
+			valid <= 0;
 		end else begin
-			case (state)
-				IDLE : state <= RUN;
-				RUN : begin
-					if (icache_valid) state <= RUN; // Cache HIT
-					else state <= WAIT; // Cache MISS
-				end
-				WAIT : begin // TODO
-					if (icache_valid) state <= RUN;
-				end
-				default : state <= RUN;
-			endcase // case (state)
+			valid <= 1;
 		end
-	end // always @(posedge clk) 
+	end
 
 endmodule // fetch

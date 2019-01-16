@@ -1,9 +1,8 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-
-
-module lsu (
+module lsu
+	import type_pkg::*;
+(
 	input logic clk,
 	input logic rst_n,
 
@@ -13,21 +12,19 @@ module lsu (
 	input data_t alu_out,
 	input data_t rs2,
 
-	// to dcache
-	output addr_t dcache_addr,
-	output logic dcache_wreq, // write request
-	output logic dcache_rreq, // read request
-	output data_t dcache_wdata, // write data
-	output byte_en_t dcache_byte_enable,
+	// // to dcache
+	output logic valid,
+	output addr_t addr,
+	output data_t wdata,
+	output byte_en_t byte_enable,
 	// from dcache
-	input logic dcache_wvalid,
+	input logic ready,
 	input data_t dcache_rdata,
-	input logic dcache_rvalid,
 
 	// to writeback
 	output data_t rdata, // read data
 	// to controller
-	output logic done // load or finish done
+	output logic done // load or store done
 );
 
 
@@ -40,15 +37,15 @@ module lsu (
 	parameter FUNC3_HU = 3'b101; // lhu
 
 
-	assign dcache_addr = alu_out;
-	assign dcache_wreq = (opcode == OP_STORE) ? 1 : 0;
-	assign dcache_rreq = (opcode == OP_LOAD)  ? 1 : 0;
-	assign dcache_wdata = (opcode == OP_STORE) ? rs2 : 32'b0;
-	assign dcache_byte_enable = (func3 == FUNC3_B || func3 == FUNC3_BU) ? 4'b0001 :
-							  (func3 == FUNC3_H || func3 == FUNC3_HU) ? 4'b0011 :
-							  (func3 == FUNC3_W) ? 4'b1111 : 4'b0000;
+	assign valid = (opcode == OP_STORE | opcode == OP_LOAD);
+	assign addr = alu_out;
+	assign wdata = (opcode == OP_STORE) ? rs2 : 32'b0;
+	assign byte_enable = (opcode == OP_LOAD) ? 4'b0000 :
+						   (func3 == FUNC3_B || func3 == FUNC3_BU) ? 4'b0001 :
+						   (func3 == FUNC3_H || func3 == FUNC3_HU) ? 4'b0011 :
+						   (func3 == FUNC3_W) ? 4'b1111 : 4'b0000;
 
-	always_comb begin							 
+	always_comb begin
 		case (func3)
 			FUNC3_B  : rdata = { {25{dcache_rdata[7]}}, dcache_rdata[6 : 0] };
 			FUNC3_H  : rdata = { {17{dcache_rdata[15]}}, dcache_rdata[14 : 0]};
@@ -58,7 +55,6 @@ module lsu (
 		endcase // func3
 	end
 
-	assign done = ((dcache_wreq && dcache_wvalid) || (dcache_rreq && dcache_rvalid) || (!dcache_wreq && !dcache_rreq)) ? 1 : 0;
-
+	assign done = (valid && ready) | !valid;
 
 endmodule // lsu

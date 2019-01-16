@@ -1,23 +1,21 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-
-
-module core (
+module core
+	import type_pkg::*;
+	import pc_mux_pkg::*;
+(
 	input logic clk,
 	input logic rst_n,
 
-	input data_t icache_data,
-	input logic icache_valid,
+	input data_t icache_rdata,
+	input logic icache_ready,
+	output logic icache_valid,
 	output addr_t icache_addr,
-	output logic icache_req,
 
-	input logic dcache_wvalid,
+	input logic dcache_ready,
 	input data_t dcache_rdata,
-	input logic dcache_rvalid,
+	output logic dcache_valid,
 	output addr_t dcache_addr,
-	output logic dcache_wreq,
-	output logic dcache_rreq,
 	output data_t dcache_wdata,
 	output byte_en_t dcache_byte_enable
 );
@@ -52,11 +50,11 @@ module core (
 		.c_br_taken(C_D_br_taken), .c_next_pc(C_D_next_pc),
 		.memory_done(D_C_memory_done), .pc_sel(D_C_pc_sel), .br_taken(D_C_br_taken),
 		.ir(D_C_ir), .next_pc(D_C_next_pc),
-		.icache_data(icache_data)	, .icache_valid(icache_valid),
-		.icache_addr(icache_addr), .icache_req(icache_req),
-		.dcache_wvalid(dcache_wvalid), .dcache_rdata(dcache_rdata), .dcache_rvalid(dcache_rvalid),
-		.dcache_addr(dcache_addr), .dcache_wreq(dcache_wreq), .dcache_rreq(dcache_rreq),
-		.dcache_wdata(dcache_wdata), .dcache_byte_enable(dcache_byte_enable)
+		.icache_rdata(icache_rdata), .icache_ready(icache_ready),
+		.icache_valid(icache_valid), .icache_addr(icache_addr),
+		.dcache_valid(dcache_valid), .dcache_addr(dcache_addr),
+		.dcache_wdata(dcache_wdata), .dcache_byte_enable(dcache_byte_enable),
+		.dcache_ready(dcache_ready), .dcache_rdata(dcache_rdata)
 	);
 
 
