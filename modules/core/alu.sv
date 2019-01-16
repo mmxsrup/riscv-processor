@@ -1,10 +1,9 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-import alu_op_pkg::*;
-
-
-module alu (
+module alu
+	import type_pkg::*;
+	import alu_op_pkg::*;
+(
 	input alu_op_t operator,
 	input data_t operand1,
 	input data_t operand2,

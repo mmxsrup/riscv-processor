@@ -1,10 +1,9 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-import pc_mux_pkg::*;
-
-
-module pc_mux (
+module pc_mux
+	import type_pkg::*;
+	import pc_mux_pkg::*;
+(
 	input data_t pc,	
 	input data_t rs1, // from decoder
 	input data_t imm, // from decoder

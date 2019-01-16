@@ -1,10 +1,10 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-import csr_addr_pkg::*;
-
-
-module csr_file #(
+module csr_file
+	import type_pkg::*;
+	import pc_mux_pkg::*;
+	import csr_addr_pkg::*;
+#(
 	localparam CSR_SIZE = 4096
 )(
 	input logic clk,
@@ -12,7 +12,7 @@ module csr_file #(
 
 	input logic w_enable,
 
-	csr_addr_t addr,
+	input csr_addr_t addr,
 	input data_t wdata,
 	output data_t rdata,
 

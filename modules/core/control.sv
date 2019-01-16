@@ -1,10 +1,9 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-import pc_mux_pkg::*;
-
-
-module control (
+module control
+	import type_pkg::*;
+	import pc_mux_pkg::*;
+(
 	input logic clk,
 	input logic rst_n,
 
@@ -32,7 +31,7 @@ module control (
 	assign next_pc_o = (state != IDLE) ? next_pc_i : 32'h0;
 
 
-	always @(posedge clk) begin
+	always_ff @(posedge clk) begin
 		if (~rst_n) begin
 			state <= IDLE;
 		end else begin

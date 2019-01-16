@@ -1,4 +1,8 @@
-module writeback (
+`timescale 1ns / 1ps
+
+module writeback
+	import type_pkg::*;
+(
 	input opcode_t opcode,
 
 	// from decode_execute

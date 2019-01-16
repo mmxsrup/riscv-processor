@@ -1,12 +1,12 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-import alu_op_pkg::*;
-import src_a_mux_pkg::*;
-import src_b_mux_pkg::*;
-import pc_mux_pkg::*;
-
-module decode_execute ( // decode and execute
+module decode_execute
+	import type_pkg::*;
+	import alu_op_pkg::*;
+	import src_a_mux_pkg::*;
+	import src_b_mux_pkg::*;
+	import pc_mux_pkg::*;
+(
 	// from fetch
 	input data_t ir,
 	input addr_t pc,

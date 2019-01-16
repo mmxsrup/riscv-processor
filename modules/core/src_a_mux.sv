@@ -1,10 +1,8 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-import src_a_mux_pkg::*;
-
-
 module src_a_mux
+	import type_pkg::*;
+	import src_a_mux_pkg::*;
 (
 	// from control
 	input addr_t pc,

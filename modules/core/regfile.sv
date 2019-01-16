@@ -1,4 +1,8 @@
-module regfile (
+`timescale 1ns / 1ps
+
+module regfile
+	import type_pkg::*;
+(
 	input logic clk,
 	input logic rst_n,
 

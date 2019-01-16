@@ -1,10 +1,8 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-import src_b_mux_pkg::*;
-
-
 module src_b_mux
+	import type_pkg::*;
+	import src_b_mux_pkg::*;
 (
 	// from regfile
 	input data_t rs2_data,

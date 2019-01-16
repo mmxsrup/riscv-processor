@@ -1,12 +1,11 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-import alu_op_pkg::*;
-import src_a_mux_pkg::*;
-import src_b_mux_pkg::*;
-
-
-module execute (
+module execute
+	import type_pkg::*;
+	import alu_op_pkg::*;
+	import src_a_mux_pkg::*;
+	import src_b_mux_pkg::*;
+(
 	// from controller
 	input addr_t pc,
 
