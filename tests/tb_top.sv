@@ -1,44 +1,52 @@
 `timescale 1ns / 1ps
 
-import type_pkg::*;
-
 
 module tb_top;
+	import type_pkg::*;
+	import pc_mux_pkg::*;
 
 	localparam STEP = 10;
 	
 	logic clk;
 	logic rst_n;
-	data_t icache_data;
+
 	logic icache_valid;
-	data_t icache_addr;
-	logic icache_req;
-	logic dcache_wvalid;
-	data_t dcache_rdata;
-	logic dcache_rvalid;
+	addr_t icache_addr;
+	logic icache_ready;
+	data_t icache_rdata;
+
+	logic dcache_valid;
 	addr_t dcache_addr;
-	logic dcache_wreq;
-	logic dcache_rreq;
 	data_t dcache_wdata;
 	byte_en_t dcache_byte_enable;
+	logic dcache_ready;
+	data_t dcache_rdata;
+
+	axi_lite_if m_axi0();
+	axi_lite_if m_axi1();
 
 	core core (
 		.clk(clk), .rst_n(rst_n),
-		.icache_data(icache_data), .icache_valid(icache_valid), .icache_addr(icache_addr), .icache_req(icache_req),
-		.dcache_wvalid(dcache_wvalid), .dcache_rdata(dcache_rdata), .dcache_rvalid(dcache_rvalid),
-		.dcache_addr(dcache_addr), .dcache_wreq(dcache_wreq), .dcache_rreq(dcache_rreq), .dcache_wdata(dcache_wdata),
-		.dcache_byte_enable(dcache_byte_enable)
+		.icache_valid(icache_valid), .icache_addr(icache_addr),
+		.icache_ready(icache_ready), .icache_rdata(icache_rdata),
+		.dcache_valid(dcache_valid), .dcache_addr(dcache_addr),
+		.dcache_wdata(dcache_wdata), .dcache_byte_enable(dcache_byte_enable),
+		.dcache_ready(dcache_ready), .dcache_rdata(dcache_rdata)
 	);
 
-
-	cache cache (
+	icache #(.INIT_FILE("data.mem")) icache (
 		.clk(clk), .rst_n(rst_n),
-		.icache_data(icache_data), .icache_valid(icache_valid), .icache_addr(icache_addr), .icache_req(icache_req),
-		.dcache_wvalid(dcache_wvalid), .dcache_rdata(dcache_rdata), .dcache_rvalid(dcache_rvalid),
-		.dcache_addr(dcache_addr), .dcache_wreq(dcache_wreq), .dcache_rreq(dcache_rreq), .dcache_wdata(dcache_wdata),
-		.dcache_byte_enable(dcache_byte_enable)
+		.valid(icache_valid), .addr(icache_addr),
+		.ready(icache_ready), .rdata(icache_rdata),
+		.m_axi(m_axi0)
 	);
 
+	dcache #(.INIT_FILE("data.mem")) dcahe (
+		.clk(clk), .rst_n(rst_n),
+		.valid(dcache_valid), .addr(dcache_addr), .wdata(dcache_wdata), .byte_enable(dcache_byte_enable),
+		.ready(dcache_ready), .rdata(dcache_rdata),
+		.m_axi(m_axi1)
+	);
 
 	always begin
 		clk = 1; #(STEP / 2);
@@ -56,3 +64,4 @@ module tb_top;
 	end
 	
 endmodule
+

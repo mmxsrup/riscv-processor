@@ -51,6 +51,15 @@ add_file ./modules/cache/cache.sv
 add_file ./modules/cache/dcache.sv
 add_file ./modules/cache/icache.sv
 add_file ./modules/ram/pkg/ram_pkg.sv
+
+add_file ./modules/cache/dcache.sv
+add_file ./modules/cache/icache.sv
+add_file ./modules/cache/cachemem.sv
+
+add_file ./modules/axi4/axi_lite_if.sv
+add_file ./modules/axi4/axi_lite_pkg.sv
+
+
 add_file ./tests/tb_top.sv
 add_file ./tests/data.mem
 # close_project
