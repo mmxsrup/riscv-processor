@@ -47,10 +47,6 @@ add_file ./modules/core/pkg/pc_mux_pkg.sv
 add_file ./modules/core/pkg/src_a_mux_pkg.sv
 add_file ./modules/core/pkg/src_b_mux_pkg.sv
 add_file ./modules/core/pkg/type_pkg.sv
-add_file ./modules/cache/cache.sv
-add_file ./modules/cache/dcache.sv
-add_file ./modules/cache/icache.sv
-add_file ./modules/ram/pkg/ram_pkg.sv
 
 add_file ./modules/cache/dcache.sv
 add_file ./modules/cache/icache.sv
@@ -59,6 +55,12 @@ add_file ./modules/cache/cachemem.sv
 add_file ./modules/axi4/axi_lite_if.sv
 add_file ./modules/axi4/axi_lite_pkg.sv
 
+add_file ./modules/ram/pkg/ram_pkg.sv
+add_file ./modules/ram/blockram.sv
+add_file ./modules/ram/ram.sv
+
+add_file ./modules/bus/arbiter.sv
+add_file ./modules/bus/interconnect_bus.sv
 
 add_file ./tests/tb_top.sv
 add_file ./tests/data.mem

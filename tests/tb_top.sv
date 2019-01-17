@@ -22,8 +22,9 @@ module tb_top;
 	logic dcache_ready;
 	data_t dcache_rdata;
 
-	axi_lite_if m_axi0();
-	axi_lite_if m_axi1();
+	axi_lite_if axi1();
+	axi_lite_if axi2();
+	axi_lite_if axi3();
 
 	core core (
 		.clk(clk), .rst_n(rst_n),
@@ -34,18 +35,28 @@ module tb_top;
 		.dcache_ready(dcache_ready), .dcache_rdata(dcache_rdata)
 	);
 
-	icache #(.INIT_FILE("data.mem")) icache (
+	icache icache (
 		.clk(clk), .rst_n(rst_n),
 		.valid(icache_valid), .addr(icache_addr),
 		.ready(icache_ready), .rdata(icache_rdata),
-		.m_axi(m_axi0)
+		.m_axi(axi1)
 	);
 
-	dcache #(.INIT_FILE("data.mem")) dcahe (
+	dcache dcahe (
 		.clk(clk), .rst_n(rst_n),
 		.valid(dcache_valid), .addr(dcache_addr), .wdata(dcache_wdata), .byte_enable(dcache_byte_enable),
 		.ready(dcache_ready), .rdata(dcache_rdata),
-		.m_axi(m_axi1)
+		.m_axi(axi2)
+	);
+
+	interconnect_bus interconnect_bus (
+		.clk(clk), .rst_n(rst_n),
+		.icache(axi1), .dcache(axi2), .ram(axi3)
+	);
+	
+	ram #(.INIT_FILE("data.mem")) ram (
+		.clk(clk), .rst_n(rst_n),
+		.s_axi(axi3)
 	);
 
 	always begin
@@ -58,7 +69,7 @@ module tb_top;
 		#(STEP * 10) rst_n = 0;
 		#(STEP * 10) rst_n = 1;
 
-		#(STEP * 2000);
+		#(STEP * 3000);
 
 		$finish;
 	end
