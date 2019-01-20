@@ -64,6 +64,7 @@ module tb_top;
 		clk = 0; #(STEP / 2);
 	end
 
+    int fd;
     logic [31 : 0] ret;
 	initial begin
 		rst_n = 1;
@@ -73,10 +74,13 @@ module tb_top;
 		#(STEP * 3000);
 
 		ret = dcache.cachemem.mem[1024];
+		fd = $fopen("./testlog.txt", "a+");
 		if (ret == 32'h1) begin
 			$display("Sucess");
+			$fwrite(fd, "Sucess\n");
 		end else begin
 			$display("Error %h", ret);
+			$fwrite(fd, "Error %h\n", ret);
 		end
 		
 		#(STEP * 10)

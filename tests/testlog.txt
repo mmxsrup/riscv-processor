@@ -1,0 +1,78 @@
+Sucess
+rv32ui-p-add
+Sucess
+rv32ui-p-addi
+Sucess
+rv32ui-p-and
+Sucess
+rv32ui-p-andi
+Sucess
+rv32ui-p-auipc
+Sucess
+rv32ui-p-beq
+Sucess
+rv32ui-p-bge
+Sucess
+rv32ui-p-bgeu
+Sucess
+rv32ui-p-blt
+Sucess
+rv32ui-p-bltu
+Sucess
+rv32ui-p-bne
+Error 00000005
+rv32ui-p-fence_i
+Sucess
+rv32ui-p-jal
+Sucess
+rv32ui-p-jalr
+Error 00000005
+rv32ui-p-lb
+Error 00000005
+rv32ui-p-lbu
+Error 00000005
+rv32ui-p-lh
+Error 00000005
+rv32ui-p-lhu
+Sucess
+rv32ui-p-lui
+Error 00000005
+rv32ui-p-lw
+Sucess
+rv32ui-p-or
+Sucess
+rv32ui-p-ori
+Error 00000009
+rv32ui-p-sb
+Error 00000009
+rv32ui-p-sh
+Sucess
+rv32ui-p-simple
+Sucess
+rv32ui-p-sll
+Sucess
+rv32ui-p-slli
+Sucess
+rv32ui-p-slt
+Sucess
+rv32ui-p-slti
+Sucess
+rv32ui-p-sltiu
+Sucess
+rv32ui-p-sltu
+Sucess
+rv32ui-p-sra
+Sucess
+rv32ui-p-srai
+Sucess
+rv32ui-p-srl
+Sucess
+rv32ui-p-srli
+Sucess
+rv32ui-p-sub
+Sucess
+rv32ui-p-sw
+Sucess
+rv32ui-p-xor
+Sucess
+rv32ui-p-xori

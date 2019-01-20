@@ -1,7 +1,7 @@
 #
 # simulation.tcl  Tcl script for simulation
 #
-set     project_directory  "../build"
+set     project_directory  "./build"
 set     project_name        "project"
 
 #
@@ -17,7 +17,7 @@ set_property -name {xsim.simulate.runtime} -value {all} -objects [get_filesets s
 #
 # Run Simulation
 #
-launch_simulation
+launch_simulation -quiet
 
 #
 # Close Project
