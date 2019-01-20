@@ -1,6 +1,7 @@
 module ram #(
 	parameter DATA_WIDTH = 32,
-	parameter DATA_SIZE = 4096,
+	parameter DATA_SIZE  = 4096,
+	parameter START_ADDR = 32'h80000000,
 	parameter INIT_FILE  = ""
 )(
 	input logic clk,
@@ -44,8 +45,8 @@ module ram #(
 			addr <= 0;
 		end else begin
 			case (state)
-				RADDR : addr <= s_axi.araddr;
-				WADDR : addr <= s_axi.awaddr;
+				RADDR : addr <= s_axi.araddr - START_ADDR;
+				WADDR : addr <= s_axi.awaddr - START_ADDR;
 			endcase
 		end
 	end
