@@ -8,7 +8,7 @@ module arbiter (
 
 	typedef enum logic [2 : 0] {IDLE, READ1, READ2, WRITE1, WRITE2} state_type;
 	state_type state, next_state;
-	logic sel;
+	logic [1 : 0] sel;
 
 	assign out.araddr  = (sel == 1) ? in1.araddr  : (sel == 2) ? in2.araddr  : 0;
 	assign out.arvalid = (sel == 1) ? in1.arvalid : (sel == 2) ? in2.arvalid : 0;

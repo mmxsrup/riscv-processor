@@ -31,7 +31,14 @@ module dcache #(
 	logic hit, dirty;
 
 	assign ready = (hit) ? 1 : 0;
-	assign ram_rdata = (state == RDATA) ? m_axi.rdata : 0;
+
+	always_ff @(posedge clk) begin
+		if(~rst_n) begin
+			ram_rdata <= 0;
+		end else begin
+			if (state == RDATA) ram_rdata <= m_axi.rdata;
+		end
+	end
 
 	// AR
 	assign m_axi.araddr  = (state == RADDR) ? addr : 32'h0;
@@ -55,7 +62,8 @@ module dcache #(
 
 	cachemem #(.INIT_FILE(INIT_FILE)) cachemem (
 		.clk(clk), .rst_n(rst_n),
-		.en(valid), .we(byte_enable), .allocate((state == ALLOCATE) ? 1'b1 : 1'b0),
+		.en(valid), .we((state == ALLOCATE) ? 4'b1111 : byte_enable),
+		.allocate((state == ALLOCATE) ? 1'b1 : 1'b0),
 		.addr(addr), .wdata((state == ALLOCATE) ? ram_rdata : wdata), .rdata(rdata),
 		.hit(hit), .dirty(dirty)
 	);
@@ -64,7 +72,7 @@ module dcache #(
 	always_comb begin
 		case (state)
 			IDLE : next_state = (!hit && dirty && valid) ? WRITEBACK :
-								  (!hit && valid) ? ALLOCATE : IDLE;
+								  (!hit && valid) ? RADDR : IDLE;
 			WRITEBACK : next_state = WADDR;
 			ALLOCATE : next_state = IDLE;
 			RADDR : if (m_axi.arvalid && m_axi.arready) next_state = RDATA;
