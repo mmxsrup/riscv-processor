@@ -4,7 +4,7 @@
 # set     project_directory   [file dirname [info script]]
 set     project_directory  "./build"
 set     project_name        "project"
-set board_part [get_board_parts -quiet -latest_file_version "*zc706*"]
+set     device_part        "xczu7ev-ffvc1156-2-e"
 
 #
 # Create project

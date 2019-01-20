@@ -42,7 +42,7 @@ module tb_top;
 		.m_axi(axi1)
 	);
 
-	dcache dcahe (
+	dcache dcache (
 		.clk(clk), .rst_n(rst_n),
 		.valid(dcache_valid), .addr(dcache_addr), .wdata(dcache_wdata), .byte_enable(dcache_byte_enable),
 		.ready(dcache_ready), .rdata(dcache_rdata),
@@ -64,12 +64,22 @@ module tb_top;
 		clk = 0; #(STEP / 2);
 	end
 
+    logic [31 : 0] ret;
 	initial begin
 		rst_n = 1;
 		#(STEP * 10) rst_n = 0;
 		#(STEP * 10) rst_n = 1;
 
 		#(STEP * 3000);
+
+		ret = dcache.cachemem.mem[1024];
+		if (ret == 32'h1) begin
+			$display("Sucess");
+		end else begin
+			$display("Error %h", ret);
+		end
+		
+		#(STEP * 10)
 
 		$finish;
 	end
