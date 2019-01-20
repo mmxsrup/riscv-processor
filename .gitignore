@@ -1,0 +1,4 @@
+build/
+vivado*
+tests/data.mem
+tests/vivdo*
