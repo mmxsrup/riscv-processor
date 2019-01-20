@@ -26,25 +26,25 @@ Sucess
 rv32ui-p-jal
 Sucess
 rv32ui-p-jalr
-Error 00000005
+Sucess
 rv32ui-p-lb
-Error 00000005
+Sucess
 rv32ui-p-lbu
-Error 00000005
+Sucess
 rv32ui-p-lh
-Error 00000005
+Sucess
 rv32ui-p-lhu
 Sucess
 rv32ui-p-lui
-Error 00000005
+Sucess
 rv32ui-p-lw
 Sucess
 rv32ui-p-or
 Sucess
 rv32ui-p-ori
-Error 00000009
+Error 00000007
 rv32ui-p-sb
-Error 00000009
+Error 00000007
 rv32ui-p-sh
 Sucess
 rv32ui-p-simple
