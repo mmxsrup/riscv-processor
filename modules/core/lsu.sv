@@ -40,56 +40,117 @@ module lsu
 		IDLE, LOW, HIGH, DONE
 	} state_type;
 	state_type state, next_state;
-	data_t tmp_data;
 
-	assign valid = (opcode == OP_STORE | opcode == OP_LOAD);
-	assign addr = alu_out;
-	assign wdata = (opcode == OP_STORE) ? rs2 : 32'b0;
-	assign byte_enable = (opcode == OP_LOAD) ? 4'b0000 :
-						   (func3 == FUNC3_B || func3 == FUNC3_BU) ? 4'b0001 :
-						   (func3 == FUNC3_H || func3 == FUNC3_HU) ? 4'b0011 :
-						   (func3 == FUNC3_W) ? 4'b1111 : 4'b0000;
+	data_t tmp_rdata, tmp_wdata;
+	byte_en_t tmp_byte_enable;
+
+	assign valid = (opcode == OP_STORE || opcode == OP_LOAD) && (state == LOW || state == HIGH);
+	// always_ff @(posedge clk) begin
+	// 	if(~rst_n) begin
+	// 		valid <= 0;
+	// 	end else begin
+	// 		valid <= (opcode == OP_STORE || opcode == OP_LOAD);
+	// 	end
+	// end
+
+	// assign addr = (state == HIGH) ? alu_out + 32'h4 : alu_out;
+	assign addr = (state == LOW) ? ((alu_out >> 2) << 2) : (state == HIGH) ? (((alu_out + 32'h4) >> 2) << 2) : 0;
+	assign wdata = (opcode == OP_STORE) ? tmp_wdata : 32'b0;
+	assign byte_enable = tmp_byte_enable;
 
 	always_comb begin
 		case (func3)
-			FUNC3_B  : rdata = { {25{tmp_data[7]}}, tmp_data[6 : 0] };
-			FUNC3_H  : rdata = { {17{tmp_data[15]}}, tmp_data[14 : 0]};
-			FUNC3_W  : rdata = tmp_data;
-			FUNC3_BU : rdata = { 24'b0, tmp_data[7 : 0] };
-			FUNC3_HU : rdata = { 16'b0, tmp_data[15 : 0]};
+			FUNC3_B  : rdata = { {25{tmp_rdata[7]}}, tmp_rdata[6 : 0] };
+			FUNC3_H  : rdata = { {17{tmp_rdata[15]}}, tmp_rdata[14 : 0]};
+			FUNC3_W  : rdata = tmp_rdata;
+			FUNC3_BU : rdata = { 24'b0, tmp_rdata[7 : 0] };
+			FUNC3_HU : rdata = { 16'b0, tmp_rdata[15 : 0]};
 		endcase // func3
 	end
 
-	assign done = (state == DONE && valid && ready) | !valid;
+	assign done = (state == DONE) | (opcode != OP_STORE && opcode != OP_LOAD);
 
 	always_ff @(posedge clk) begin
 		if(~rst_n) begin
-			tmp_data <= 0;
+			tmp_rdata <= 0;
 		end else begin
-			if (state == LOW && ready) begin
-				case (addr[1 : 0])
-					2'b00 : tmp_data[0 +: 32] <= dcache_rdata[0  +: 32];
-					2'b01 : tmp_data[0 +: 24] <= dcache_rdata[8  +: 24];
-					2'b10 : tmp_data[0 +: 16] <= dcache_rdata[16 +: 16];
-					2'b11 : tmp_data[0 +:  8] <= dcache_rdata[24 +:  8];
-				endcase
-			end else if (state == HIGH && ready) begin
-				case (addr[1 : 0])
-					2'b01 : tmp_data[24 +:  8] <= dcache_rdata[0 +:  8];
-					2'b10 : tmp_data[16 +: 16] <= dcache_rdata[0 +: 16];
-					2'b11 : tmp_data[8 +:  24] <= dcache_rdata[0 +: 24];
-					default : tmp_data <= 0;
-				endcase
+			if (opcode == OP_LOAD) begin
+				if (state == LOW && ready) begin
+					case (alu_out[1 : 0])
+						2'b00 : tmp_rdata[0 +: 32] <= dcache_rdata[0  +: 32];
+						2'b01 : tmp_rdata[0 +: 24] <= dcache_rdata[8  +: 24];
+						2'b10 : tmp_rdata[0 +: 16] <= dcache_rdata[16 +: 16];
+						2'b11 : tmp_rdata[0 +:  8] <= dcache_rdata[24 +:  8];
+					endcase
+				end else if (state == HIGH && ready) begin
+					case (alu_out[1 : 0])
+						2'b01 : tmp_rdata[24 +:  8] <= dcache_rdata[0 +:  8];
+						2'b10 : tmp_rdata[16 +: 16] <= dcache_rdata[0 +: 16];
+						2'b11 : tmp_rdata[8 +:  24] <= dcache_rdata[0 +: 24];
+						default : tmp_rdata <= 0;
+					endcase
+				end
+			end else begin
+				tmp_rdata <= 0;
 			end
 		end
 	end
 
 	always_comb begin
+		if (opcode == OP_STORE) begin
+			if (state == LOW) begin
+				case (alu_out[1 : 0])
+					2'b00 : tmp_wdata[0  +: 32] <= rs2[0 +: 32];
+					2'b01 : tmp_wdata[8  +: 24] <= rs2[0 +: 24];
+					2'b10 : tmp_wdata[16 +: 16] <= rs2[0 +: 16];
+					2'b11 : tmp_wdata[24 +:  8] <= rs2[0 +:  8];
+				endcase
+			end else if (state == HIGH) begin
+				case (alu_out[1 : 0])
+					2'b01 : tmp_wdata[0 +:  8] <= rs2[24 +: 8];
+					2'b10 : tmp_wdata[0 +: 16] <= rs2[16 +: 16];
+					2'b11 : tmp_wdata[0 +: 24] <= rs2[8  +: 24];
+					default : tmp_wdata <= 0;
+				endcase
+			end
+		end else begin
+			tmp_wdata <= 0;
+		end
+	end
+
+	always_comb begin
+		if (opcode == OP_STORE) begin
+			if (state == LOW) begin
+				case (alu_out[1 : 0])
+					2'b00 : tmp_byte_enable <= 4'b1111;
+					2'b01 : tmp_byte_enable <= 4'b1110;
+					2'b10 : tmp_byte_enable <= 4'b1100;
+					2'b11 : tmp_byte_enable <= 4'b1000;
+				endcase
+			end else if (state == HIGH) begin
+				case (alu_out[1 : 0])
+					2'b01 : tmp_byte_enable <= 4'b0001;
+					2'b10 : tmp_byte_enable <= 4'b0011;
+					2'b11 : tmp_byte_enable <= 4'b0111;
+					default : tmp_byte_enable <= 4'b0000;
+				endcase
+			end else begin
+				tmp_byte_enable <= 4'b0000;
+			end
+		end else begin
+			tmp_byte_enable <= 4'b0000;
+		end
+	end
+
+
+	always_comb begin
 		case (state)
-			IDLE : if (valid) next_state = LOW;
+			IDLE : if (opcode == OP_STORE || opcode == OP_LOAD) next_state = LOW;
 			LOW  : begin
 				if (ready) begin
-					next_state = (addr[1 : 0] == 2'b00) ? DONE : HIGH;
+					next_state = (alu_out[1 : 0] == 2'b00) ? DONE : HIGH;
+				end else if (opcode != OP_STORE && opcode != OP_LOAD) begin // TODO
+					next_state = IDLE;
 				end
 			end
 			HIGH : if (ready) next_state = DONE;
