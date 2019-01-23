@@ -14,6 +14,7 @@ module tb_top;
 	addr_t icache_addr;
 	logic icache_ready;
 	data_t icache_rdata;
+	logic icache_flash;
 
 	logic dcache_valid;
 	addr_t dcache_addr;
@@ -21,29 +22,32 @@ module tb_top;
 	byte_en_t dcache_byte_enable;
 	logic dcache_ready;
 	data_t dcache_rdata;
+	logic dcache_flash;
 
 	axi_lite_if axi1();
-	axi_lite_if axi2();
-	axi_lite_if axi3();
+	axi_if axi2();
+	axi_if axi3();
 
 	core core (
 		.clk(clk), .rst_n(rst_n),
 		.icache_valid(icache_valid), .icache_addr(icache_addr),
 		.icache_ready(icache_ready), .icache_rdata(icache_rdata),
+		.icache_flash(icache_flash),
 		.dcache_valid(dcache_valid), .dcache_addr(dcache_addr),
 		.dcache_wdata(dcache_wdata), .dcache_byte_enable(dcache_byte_enable),
-		.dcache_ready(dcache_ready), .dcache_rdata(dcache_rdata)
+		.dcache_ready(dcache_ready), .dcache_rdata(dcache_rdata),
+		.dcache_flash(dcache_flash)
 	);
 
 	icache icache (
-		.clk(clk), .rst_n(rst_n),
+		.clk(clk), .rst_n(rst_n), .flash(1'b0),
 		.valid(icache_valid), .addr(icache_addr),
 		.ready(icache_ready), .rdata(icache_rdata),
 		.m_axi(axi1)
 	);
 
 	dcache dcache (
-		.clk(clk), .rst_n(rst_n),
+		.clk(clk), .rst_n(rst_n), .flash(1'b0),
 		.valid(dcache_valid), .addr(dcache_addr), .wdata(dcache_wdata), .byte_enable(dcache_byte_enable),
 		.ready(dcache_ready), .rdata(dcache_rdata),
 		.m_axi(axi2)

@@ -54,6 +54,8 @@ add_file ./modules/cache/cachemem.sv
 
 add_file ./modules/axi4/axi_lite_if.sv
 add_file ./modules/axi4/axi_lite_pkg.sv
+add_file ./modules/axi4/axi_if.sv
+add_file ./modules/axi4/axi_pkg.sv
 
 add_file ./modules/ram/pkg/ram_pkg.sv
 add_file ./modules/ram/blockram.sv
