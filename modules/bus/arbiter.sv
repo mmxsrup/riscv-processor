@@ -1,9 +1,9 @@
 module arbiter (
 	input clk,
 	input rst_n,
-	axi_lite_if.slave in1,
-	axi_lite_if.slave in2,
-	axi_lite_if.master out
+	axi_lite_if.slave in1, // from icache
+	axi_if.slave in2, // from dcache
+	axi_if.master out // to ram
 );
 
 	typedef enum logic [2 : 0] {IDLE, READ1, READ2, WRITE1, WRITE2} state_type;
@@ -12,13 +12,19 @@ module arbiter (
 
 	assign out.araddr  = (sel == 1) ? in1.araddr  : (sel == 2) ? in2.araddr  : 0;
 	assign out.arvalid = (sel == 1) ? in1.arvalid : (sel == 2) ? in2.arvalid : 0;
+	assign out.arlen  = (sel == 2) ? in2.arlen : 0;
+	assign out.arsize = (sel == 2) ? in2.arsize : 0;
+	assign out.arburst = (sel == 2) ? in2.arburst : 0;
 	assign out.rready  = (sel == 1) ? in1.rready  : (sel == 2) ? in2.rready  : 0;
 	assign out.awaddr  = (sel == 1) ? in1.awaddr  : (sel == 2) ? in2.awaddr  : 0;
 	assign out.awvalid = (sel == 1) ? in1.awvalid : (sel == 2) ? in2.awvalid : 0;
+	assign out.awlen  = (sel == 2) ? in2.awlen : 0;
+	assign out.awsize = (sel == 2) ? in2.awsize : 0;
+	assign out.awburst = (sel == 2) ? in2.awburst : 0;
 	assign out.wdata   = (sel == 1) ? in1.wdata   : (sel == 2) ? in2.wdata   : 0;
 	assign out.wstrb   = (sel == 1) ? in1.wstrb   : (sel == 2) ? in2.wstrb   : 0;
 	assign out.wvalid  = (sel == 1) ? in1.wvalid  : (sel == 2) ? in2.wvalid  : 0;
-	assign out.wvalid  = (sel == 1) ? in1.wvalid  : (sel == 2) ? in2.wvalid  : 0;
+	assign out.wlast = (sel == 1) ? in2.wlast : 1;
 	assign out.bready  = (sel == 1) ? in1.bready  : (sel == 2) ? in2.bready  : 0;
 
 	assign in1.arready = (sel == 1) ? out.arready : 0;

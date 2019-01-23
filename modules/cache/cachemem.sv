@@ -5,6 +5,7 @@ module cachemem #(
 )(
 	input clk,
 	input rst_n,
+	input logic flash,
 	input logic en,
 	input  logic [DATA_WIDTH / 8 - 1 : 0] we,
 	input logic allocate,
@@ -58,22 +59,28 @@ module cachemem #(
 				$readmemh(INIT_FILE, mem);
 			end
 		end else begin
-			if (en && hit) begin
-				for (int i = 0; i < $bits(we); i++) begin
-					if (we[i]) begin
-						mem[addr_index][8 * i +: 8] <= wdata[8 * i +: 8];
-					end
+			if (flash) begin
+				for (int i = 0; i < DATA_SIZE; i++) begin
+					v[i] = 0; d[i] = 0; tag[i] = 0; mem[i] = 0;
 				end
-				d[addr_index] <= 1;
-			end else if (en && allocate) begin
-				for (int i = 0; i < $bits(we); i++) begin
-					if (we[i]) begin
-						mem[addr_index][8 * i +: 8] <= wdata[8 * i +: 8];
+			end else begin
+				if (en && hit) begin
+					for (int i = 0; i < $bits(we); i++) begin
+						if (we[i]) begin
+							mem[addr_index][8 * i +: 8] <= wdata[8 * i +: 8];
+						end
 					end
+					d[addr_index] <= 1;
+				end else if (en && allocate) begin
+					for (int i = 0; i < $bits(we); i++) begin
+						if (we[i]) begin
+							mem[addr_index][8 * i +: 8] <= wdata[8 * i +: 8];
+						end
+					end
+					d[addr_index] <= 0;
+					v[addr_index] <= 1;
+					tag[addr_index] <= addr_tag;
 				end
-				d[addr_index] <= 0;
-				v[addr_index] <= 1;
-				tag[addr_index] <= addr_tag;
 			end
 		end
 	end

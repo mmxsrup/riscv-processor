@@ -6,6 +6,7 @@ module icache #(
 )(
 	input logic clk,
 	input logic rst_n,
+	input logic flash,
 	
 	// from lsu
 	input logic valid,
@@ -51,7 +52,7 @@ module icache #(
 
 
 	cachemem #(.INIT_FILE(INIT_FILE)) cachemem (
-		.clk(clk), .rst_n(rst_n),
+		.clk(clk), .rst_n(rst_n), .flash(flash),
 		.en(valid), .we((state == ALLOCATE) ? 4'b1111 : 4'b0000),
 		.allocate((state == ALLOCATE) ? 1'b1 : 1'b0),
 		.addr(addr), .wdata((state == ALLOCATE) ? ram_rdata : 0), .rdata(rdata),

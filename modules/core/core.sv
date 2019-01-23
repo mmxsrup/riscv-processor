@@ -11,13 +11,15 @@ module core
 	input logic icache_ready,
 	output logic icache_valid,
 	output addr_t icache_addr,
+	output logic icache_flash,
 
 	input logic dcache_ready,
 	input data_t dcache_rdata,
 	output logic dcache_valid,
 	output addr_t dcache_addr,
 	output data_t dcache_wdata,
-	output byte_en_t dcache_byte_enable
+	output byte_en_t dcache_byte_enable,
+	output logic dcache_flash
 );
 
 
