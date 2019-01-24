@@ -1,6 +1,6 @@
 module cachemem #(
 	parameter DATA_WIDTH = 32,
-	parameter DATA_SIZE = 4096,
+	parameter DATA_SIZE = 128,
 	parameter INIT_FILE  = ""
 )(
 	input clk,
@@ -34,11 +34,11 @@ module cachemem #(
 		end
 	end
 
-	logic [17 : 0] addr_tag;
-	logic [11 : 0] addr_index;
+	logic [23 : 0] addr_tag;
+	logic [6 : 0] addr_index;
 
-	assign addr_tag = addr[31 : 14];
-	assign addr_index = addr[13 : 2];
+	assign addr_tag = addr[31 : 9];
+	assign addr_index = addr[8 : 2];
 	assign hit = (en && tag[addr_index] == addr_tag && v[addr_index]);
 	assign dirty = v[addr_index];
 

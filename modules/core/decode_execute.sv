@@ -37,7 +37,9 @@ module decode_execute
 	// to csr_file
 	output csr_addr_t csr_addr,
 	output data_t csr_wdata,
-	output csr_wb
+	output csr_wb,
+
+	output logic flash
 );
 	
 	parameter OP_BRANCH = 7'b1100011;
@@ -61,7 +63,8 @@ module decode_execute
 		.alu_op_sel(alu_op_sel),
 		.src_a_sel(src_a_sel), .src_b_sel(src_b_sel), .pc_sel(pc_sel),
 		.wb_reg(wb_reg),
-		.csr_addr(csr_addr), .csr_wdata(csr_wdata), .csr_wb(csr_wb)
+		.csr_addr(csr_addr), .csr_wdata(csr_wdata), .csr_wb(csr_wb),
+		.flash(flash)
 	);
 
 	execute execute (

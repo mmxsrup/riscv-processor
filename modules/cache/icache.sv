@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 module icache #(
-	parameter CACHE_SIZE = 4096,
+	parameter CACHE_SIZE = 128,
 	parameter INIT_FILE  = ""
 )(
 	input logic clk,

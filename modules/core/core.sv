@@ -19,7 +19,8 @@ module core
 	output addr_t dcache_addr,
 	output data_t dcache_wdata,
 	output byte_en_t dcache_byte_enable,
-	output logic dcache_flash
+	output logic dcache_flash,
+	input logic dcache_flash_done
 );
 
 
@@ -39,7 +40,7 @@ module core
 
 	control control (
 		.clk(clk), .rst_n(rst_n),
-		.memory_done_i(D_C_memory_done), .pc_sel_i(D_C_pc_sel),
+		.memory_done_i(D_C_memory_done), .flash_done_i(dcache_flash_done), .pc_sel_i(D_C_pc_sel),
 		.br_taken_i(D_C_br_taken), .ir_i(D_C_ir), .next_pc_i(D_C_next_pc),
 		.fetch_stall_o(C_D_fetch_stall), .pc_sel_o(C_D_pc_sel),
 		.br_taken_o(C_D_br_taken), .next_pc_o(C_D_next_pc)
@@ -54,9 +55,11 @@ module core
 		.ir(D_C_ir), .next_pc(D_C_next_pc),
 		.icache_rdata(icache_rdata), .icache_ready(icache_ready),
 		.icache_valid(icache_valid), .icache_addr(icache_addr),
+		.icache_flash(icache_flash),
 		.dcache_valid(dcache_valid), .dcache_addr(dcache_addr),
 		.dcache_wdata(dcache_wdata), .dcache_byte_enable(dcache_byte_enable),
-		.dcache_ready(dcache_ready), .dcache_rdata(dcache_rdata)
+		.dcache_ready(dcache_ready), .dcache_rdata(dcache_rdata),
+		.dcache_flash(dcache_flash)
 	);
 
 

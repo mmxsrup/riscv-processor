@@ -53,25 +53,23 @@ module ram
 			len   <= 0;
 			size  <= 0;
 			burst <= 0;
+			len_cnt <= 0;
 		end else begin
 			case (state)
-				RADDR : addr <= s_axi.araddr - START_ADDR;
+				IDLE : len_cnt <= 0;
+				RADDR : begin
+					addr  <= s_axi.araddr - START_ADDR;
+					len   <= s_axi.arlen;
+					size  <= s_axi.arsize;
+					burst <= s_axi.arburst;
+				end
 				WADDR : begin
 					addr  <= s_axi.awaddr - START_ADDR;
 					len   <= s_axi.awlen;
 					size  <= s_axi.awsize;
 					burst <= s_axi.awburst;
 				end
-			endcase
-		end
-	end
-
-	always_ff @(posedge clk) begin
-		if(~rst_n) begin
-			len_cnt <= 0;
-		end else begin
-			case (state)
-				WADDR : begin
+				WDATA: begin
 					if (s_axi.wvalid && s_axi.wready) begin
 						if (burst == BURST_INCR) addr <= addr + 32'h4;
 						len_cnt <= len_cnt + 1;
@@ -80,6 +78,7 @@ module ram
 			endcase
 		end
 	end
+
 	always_comb begin
 		case (state)
 			IDLE : next_state = (s_axi.arvalid) ? RADDR : (s_axi.awvalid) ? WADDR : IDLE;

@@ -24,13 +24,15 @@ module datapath
 	input logic icache_ready,
 	output logic icache_valid,
 	output addr_t icache_addr,
+	output logic icache_flash,
 
 	input logic dcache_ready,
 	input data_t dcache_rdata,
 	input logic dcache_valid,
 	output addr_t dcache_addr,
 	output data_t dcache_wdata,
-	output byte_en_t dcache_byte_enable
+	output byte_en_t dcache_byte_enable,
+	output logic dcache_flash
 );
 		
 	reg_addr_t rs1_num;
@@ -66,6 +68,10 @@ module datapath
 	initial begin
 		pc = 32'h0;
 	end
+
+	assign icache_flash = flash;
+	assign dcache_flash = flash;
+	
 
 	regfile regfile (
 		.clk(clk), .rst_n(rst_n),
@@ -106,7 +112,8 @@ module datapath
 		.opcode(DE_MW_opcode_w), .func3(DE_MW_func3_w),
 		.wb_reg(DE_MW_wb_reg_w), .rd_num(DE_MW_rd_num_w), .rd_data(DE_MW_rd_data_w),
 		.imm(DE_F_imm), .pc_sel(pc_sel), .br_taken(br_taken), // to fetch
-		.csr_addr(csr_addr), .csr_wdata(csr_wdata), .csr_wb(csr_wb) // to csr_file
+		.csr_addr(csr_addr), .csr_wdata(csr_wdata), .csr_wb(csr_wb), // to csr_file
+		.flash(flash)
 	);
 
 

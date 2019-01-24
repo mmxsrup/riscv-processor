@@ -36,7 +36,9 @@ module decode
 	// to csr
 	output csr_addr_t csr_addr,
 	output data_t csr_wdata,
-	output logic csr_wb // write back to csr
+	output logic csr_wb, // write back to csr
+
+	output logic flash
 );
 	
 	parameter TYPE_WIDTH = 3;
@@ -274,5 +276,6 @@ module decode
 		end
 	end
 
+	assign flash = (func3 == 3'b001 && opcode == 7'b0001111) ? 1 : 0; // fence.i
 
 endmodule // decode

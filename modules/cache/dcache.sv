@@ -4,12 +4,13 @@
 module dcache
     import axi_pkg::*;
 #(
-	parameter CACHE_SIZE = 4096,
+	parameter CACHE_SIZE = 128,
 	parameter INIT_FILE  = ""
 )(
 	input logic clk,
 	input logic rst_n,
 	input logic flash,
+	output logic flash_done,
 
 	// from lsu
 	input logic valid,
@@ -25,7 +26,7 @@ module dcache
 );
 
 	typedef enum logic [3 : 0] {
-		IDLE, WRITEBACK, ALLOCATE, RADDR, RDATA, WADDR, WDATA, WRESP, FLASH
+		IDLE, WRITEBACK, ALLOCATE, RADDR, RDATA, WADDR, WDATA, WRESP, FLASH, FLASH_DONE
 	} state_type;
 	state_type state, next_state;
 
@@ -33,8 +34,10 @@ module dcache
 	logic [31 : 0] rdata;
 	logic hit, dirty;
 	len_t flash_cnt; // TODO
+	logic flash_flag;
 
 	assign ready = (state == IDLE && hit) ? 1 : 0;
+	assign flash_done = ((state == FLASH_DONE || !flash_flag) && next_state != FLASH) ? 1 : 0;
 
 	always_ff @(posedge clk) begin
 		if(~rst_n) begin
@@ -57,15 +60,15 @@ module dcache
 	// AW
 	assign m_axi.awaddr  = (state == WADDR) ? addr : 32'h0;
 	assign m_axi.awvalid = (state == WADDR) ? 1 : 0;
-	assign m_axi.awlen = (flash) ? CACHE_SIZE - 1 : 0;
+	assign m_axi.awlen = (flash_flag) ? CACHE_SIZE - 1 : 0;
 	assign m_axi.awsize = SIZE_4_BYTE;
 	assign m_axi.awburst = BURST_INCR;
 
 	// W
 	assign m_axi.wdata  = (state == WDATA) ? rdata : 32'h0;
-	assign m_axi.wstrb  = (flash) ? 4'b1111 : byte_enable;
+	assign m_axi.wstrb  = (flash_flag && dirty) ? 4'b1111 : (flash_flag) ? 4'b0000 : byte_enable;
 	assign m_axi.wvalid = (state == WDATA) ? 1 : 0;
-	assign m_axi.wlast = (state == WDATA && (flash_cnt == CACHE_SIZE - 1 || !flash)) ? 1 : 0;
+	assign m_axi.wlast = (state == WDATA && (flash_cnt == CACHE_SIZE - 1 || !flash_flag)) ? 1 : 0;
 
 	// B
 	assign m_axi.bready = (state == WRESP) ? 1 : 0;
@@ -75,7 +78,7 @@ module dcache
 		.clk(clk), .rst_n(rst_n), .flash(1'b0),
 		.en(valid), .we((state == ALLOCATE) ? 4'b1111 : byte_enable),
 		.allocate((state == ALLOCATE) ? 1'b1 : 1'b0),
-		.addr((flash) ? (flash_cnt << 2) : addr), .wdata((state == ALLOCATE) ? ram_rdata : wdata), .rdata(rdata),
+		.addr((flash_flag) ? (flash_cnt << 2) : addr), .wdata((state == ALLOCATE) ? ram_rdata : wdata), .rdata(rdata),
 		.hit(hit), .dirty(dirty)
 	);
 
@@ -91,6 +94,15 @@ module dcache
 		end
 	end
 
+	always_ff @(posedge clk) begin
+		if(~rst_n) begin
+			flash_flag <= 0;
+		end else begin
+			if (next_state == FLASH) flash_flag <= 1;
+			else if (next_state == IDLE) flash_flag <= 0;
+		end
+	end
+
 	always_comb begin
 		case (state)
 			IDLE : next_state = (flash) ? FLASH :
@@ -102,8 +114,9 @@ module dcache
 			RDATA : if (m_axi.rvalid  && m_axi.rready ) next_state = ALLOCATE;
 			WADDR : if (m_axi.awvalid && m_axi.awready) next_state = WDATA;
 			WDATA : if (m_axi.wvalid  && m_axi.wready && m_axi.wlast) next_state = WRESP;
-			WRESP : if (m_axi.bvalid  && m_axi.bready ) next_state = RADDR;
+			WRESP : if (m_axi.bvalid  && m_axi.bready ) next_state = (flash_flag) ? FLASH_DONE : RADDR;
 			FLASH : next_state = WADDR;
+			FLASH_DONE : next_state = IDLE;
 			default : next_state = IDLE;
 		endcase
 	end
