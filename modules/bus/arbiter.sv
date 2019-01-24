@@ -24,7 +24,7 @@ module arbiter (
 	assign out.wdata   = (sel == 1) ? in1.wdata   : (sel == 2) ? in2.wdata   : 0;
 	assign out.wstrb   = (sel == 1) ? in1.wstrb   : (sel == 2) ? in2.wstrb   : 0;
 	assign out.wvalid  = (sel == 1) ? in1.wvalid  : (sel == 2) ? in2.wvalid  : 0;
-	assign out.wlast = (sel == 1) ? in2.wlast : 1;
+	assign out.wlast = (sel == 2) ? in2.wlast : 1;
 	assign out.bready  = (sel == 1) ? in1.bready  : (sel == 2) ? in2.bready  : 0;
 
 	assign in1.arready = (sel == 1) ? out.arready : 0;
@@ -47,8 +47,8 @@ module arbiter (
 
 	always_comb begin
 		if (state == IDLE) begin
-			if (in1.arvalid) sel = 1;
-			else if (in2.arvalid) sel = 2;
+			if (in1.arvalid || in1.awvalid) sel = 1;
+			else if (in2.arvalid || in2.awvalid) sel = 2;
 			else sel = 0;
 		end
 	end
