@@ -1,6 +1,10 @@
 ## Risc-V Processor
 RV32I Single Cycle Processor
 
+### Howt to download
+```
+git clone --recursive git@github.com:mmxsrup/riscv-processor.git
+```
 
 ### How to test
 Create a binary file for testing
